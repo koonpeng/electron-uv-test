@@ -1,0 +1,17 @@
+{
+  "name": "uv-native-module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "node-gyp rebuild && electron-rebuild"
+  },
+  "author": "",
+  "license": "ISC",
+  "gypfile": true,
+  "devDependencies": {
+    "electron": "^9.0.5",
+    "electron-rebuild": "^1.11.0"
+  }
+}
