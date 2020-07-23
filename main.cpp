@@ -25,7 +25,13 @@ NODE_MODULE_INITIALIZER(Local<Object> exports, Local<Value> module, Local<Contex
   auto v8Path = module->ToObject(context).ToLocalChecked()
     ->Get(context, String::NewFromUtf8(isolate, "path", NewStringType::kNormal).ToLocalChecked())
     .ToLocalChecked();
+#ifdef __linux__
   fooLib = std::string(*String::Utf8Value(isolate, v8Path)) + "/foo.so";
+#elif _WIN32
+  fooLib = std::string(*String::Utf8Value(isolate, v8Path)) + "/libfoo.dll";
+#else
+  error: "Unsupported OS"
+#endif
   NODE_SET_METHOD(exports, "testLoadLibrary", TestLoadLibrary);
 }
 

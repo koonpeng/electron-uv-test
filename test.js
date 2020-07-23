@@ -1,3 +1,4 @@
-const asd = require('./build/Release/uv_module');
+const testModule = require('./build/Release/uv_module');
 
-console.log(asd.testLoadLibrary());
+console.log(testModule.testLoadLibrary());
+process.exit(0);
