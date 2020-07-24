@@ -1,38 +1,24 @@
-#include <node.h>
+#include <napi.h>
 #include <uv.h>
 
-namespace demo {
+namespace test_module {
 
-using namespace v8;
-
-static std::string fooLib;
-
-void TestLoadLibrary(const FunctionCallbackInfo<Value>& args) {
+Napi::Value TestLoadLibrary(const Napi::CallbackInfo& info) {
+  auto lib_path = info[0].ToString().Utf8Value();
   uv_lib_t lib;
-  const int result = uv_dlopen(fooLib.c_str(), &lib);
-
-  Isolate* isolate = args.GetIsolate();
-  if (result == 0)
-    args.GetReturnValue().Set(String::NewFromUtf8(isolate, "Success", NewStringType::kNormal).ToLocalChecked());
-  else {
-    args.GetReturnValue().Set(String::NewFromUtf8(isolate, uv_dlerror(&lib), NewStringType::kNormal).ToLocalChecked());
+  auto result = uv_dlopen(lib_path.c_str(), &lib);
+  if (result == 0) {
+    return Napi::Value::From(info.Env(), true);
+  } else {
+    Napi::Error::New(info.Env(), uv_dlerror(&lib)).ThrowAsJavaScriptException();
+    return Napi::Value();
   }
 }
 
-extern "C" NODE_MODULE_EXPORT void
-NODE_MODULE_INITIALIZER(Local<Object> exports, Local<Value> module, Local<Context> context) {
-  Isolate* isolate = Isolate::GetCurrent();
-  auto v8Path = module->ToObject(context).ToLocalChecked()
-    ->Get(context, String::NewFromUtf8(isolate, "path", NewStringType::kNormal).ToLocalChecked())
-    .ToLocalChecked();
-#ifdef __linux__
-  fooLib = std::string(*String::Utf8Value(isolate, v8Path)) + "/foo.so";
-#elif _WIN32
-  fooLib = std::string(*String::Utf8Value(isolate, v8Path)) + "/libfoo.dll";
-#else
-  error: "Unsupported OS"
-#endif
-  NODE_SET_METHOD(exports, "testLoadLibrary", TestLoadLibrary);
+Napi::Object Init(Napi::Env env, Napi::Object exports) {
+  return Napi::Function::New(env, TestLoadLibrary);
 }
 
-}  // namespace demo
+NODE_API_MODULE(TestLoadLibrary, Init);
+
+}  // namespace test_module
