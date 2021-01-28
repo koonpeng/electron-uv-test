@@ -11,7 +11,7 @@
   "license": "ISC",
   "gypfile": true,
   "devDependencies": {
-    "electron": "^9.0.5",
+    "electron": "^9.4.0",
     "electron-rebuild": "^1.11.0",
     "node-addon-api": "^3.0.0"
   }
